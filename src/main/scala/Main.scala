@@ -6,7 +6,9 @@ import scala.collection.JavaConverters._
 import java.net.Socket
 import java.io.{InputStreamReader, BufferedReader, PrintWriter}
 import scala.tools.jline.console.ConsoleReader
+import scala.tools.jline._
 import com.typesafe.config._
+import scala.annotation.tailrec
 
 object Main {
 
@@ -18,22 +20,26 @@ object Main {
     val out = new PrintWriter(socket.getOutputStream(), true)
     val in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
 
-    val stdIn = new ConsoleReader(System.in, new PrintWriter(System.out, true))
+    val terminal = TerminalFactory.create()
+    val stdIn = new ConsoleReader(System.in, new PrintWriter(System.out, true), terminal)
+    stdIn.setPrompt("scala> ")
 
+    @tailrec def repl(): Unit = {
+      handleReplOutput(in)
+      val cmd = command(stdIn)
+      cmd.foreach(out.println)
+      if(!quitCommand(cmd)) repl()
+    }
     println("Connected to remote REPL. Fire up your commands")
-    var shouldContinue = true
+
     try {
-      while(shouldContinue) {
-        handleReplOutput(in)
-        val cmd = command(stdIn)
-        cmd.foreach(out.println)
-        shouldContinue = !quitCommand(cmd)
-      }
+      repl()
     } finally {
       println("Remote REPL is closed...")
       in.close()
       out.close()
       socket.close()
+      terminal.restore()
     }
   }
 
@@ -47,9 +53,7 @@ object Main {
     def isScalaPrompt(value: String) = value.endsWith("scala> ")
 
     def replOutput(output: Option[String]):Unit = output.foreach { result =>
-      if(isScalaPrompt(result)) {
-        print(result)
-      } else {
+      if(!isScalaPrompt(result)) {
         println(result)
         replOutput(Option(reader.readLine()))
       }
