@@ -27,7 +27,7 @@ public class AgentMain {
             public void run() {
                 ClassLoader withScalaRepl = addReplToClasspath(libs, oldClassLoader);
                 try {
-                    startRepl(port, withScalaRepl, inst);
+                    startRepl(port, libs, withScalaRepl, inst);
                 } finally {
                     //resetting back to old classloader
                     System.out.println("Resetting the classloader...");
@@ -60,30 +60,17 @@ public class AgentMain {
     }
 
     private static ClassLoader findAppropriateClassLoader(Instrumentation inst) {
-
-//        Map<String, ClassLoader> classLoaders = new HashMap<>();
-//        for(Class c : inst.getAllLoadedClasses()) {
-//            ClassLoader cl = c.getClassLoader();
-//            if(cl != null) {
-//                classLoaders.put(cl.toString(), cl);
-//            }
-//        }
-//
-//        for(Map.Entry e : classLoaders.entrySet()) {
-//           System.out.println("ClassLoaders found " + e.getKey() + " = " + e.getValue());
-//        }
-//         //TODO fix this to findClassLoader based on class or thread id
-//         return classLoaders.entrySet().iterator().next().getValue();
+         //TODO fix this to findClassLoader based on class or thread id
          ClassLoader cl = ClassLoaderFinder.find(AgentMain.class);
          System.out.println("Selected classloader " + cl);
          return cl;
     }
 
-    private static void startRepl(int port, ClassLoader cl, Instrumentation inst) {
+    private static void startRepl(int port, String libs, ClassLoader cl, Instrumentation inst) {
         try {
-            Class repl = Class.forName("com.nworks.remote.repl.Repl", true, cl);
-            Method method = repl.getDeclaredMethod("start", int.class);
-            method.invoke(null, port);
+            Class repl = Class.forName("com.nworks.remote.repl.ServerRepl", true, cl);
+            Method method = repl.getDeclaredMethod("start", int.class, String.class);
+            method.invoke(null, port, libs);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
