@@ -7,8 +7,8 @@ import java.net.{Socket, ServerSocket}
 
 object ServerRepl {
 
-  def start(port: Int, scalaCompilerJar: String) = {
-    repl(new ServerSocket(port)).process(settings(scalaCompilerJar))
+  def start(port: Int, compilerPath: String) = {
+    repl(new ServerSocket(port)).process(settings(compilerPath))
   }
 
   private def repl(serverSocket: ServerSocket) = {
@@ -23,7 +23,6 @@ object ServerRepl {
       def isScalaPrompt(value: String) = value.endsWith("scala> ")
 
       override def write(str: String, off: Int, len: Int): Unit = {
-        System.out.println(">>>>>>>> " + str)
         if(isScalaPrompt(str)) {
           super.write(str + "\n", off, len + 1); //add new line so that remote client can immediately read it using readLine
         } else {
@@ -49,14 +48,14 @@ object ServerRepl {
     }
   }
 
-  private def settings(scalaCompilerJar: String) = {
+  private def settings(compilerPath: String) = {
 
-    println(">>>>>>libs " + scalaCompilerJar)
     val settings = new Settings
     settings.Yreplsync.value = true
     //use when launching normally outside SBT
     settings.usejavacp.value = true
-    settings.bootclasspath.value = scalaCompilerJar.split(";").head
+    //so that REPL knows about scala compiler files when compiling code
+    settings.bootclasspath.value = compilerPath
     //an alternative to 'usejavacp' setting, when launching from within SBT
     //settings.embeddedDefaults[Repl.type]
     settings

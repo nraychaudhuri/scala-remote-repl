@@ -18,6 +18,7 @@ object Main {
        val vm = attachToVm(pid, port)
        ClientRepl.connectToRemote(host, port)
        vm.detach()
+       println("Agent is detached...")
      }
   }
 
@@ -27,8 +28,7 @@ object Main {
     val agentPath = config.getString("repl.agent.path")
     val scalaCompilerPath = config.getString("repl.scala.compiler.path")
     val serverPath = config.getString("repl.server.path")
-    val libs = s"${scalaCompilerPath};${serverPath}"
-    val agentArgs = s"port=${port},libs=${libs}"
+    val agentArgs = s"port=${port},compilerPath=${scalaCompilerPath},serverPath=${serverPath}"
     vm.loadAgent(agentPath, agentArgs)
     vm
   }
