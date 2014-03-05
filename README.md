@@ -1,4 +1,3 @@
-
 # Connecting Scala REPL to running Play application
 
 Hands down one of the great feature of Scala language is its REPL (Read-Evaluate-Print-Loop). The REPL allows us to
@@ -40,7 +39,7 @@ To connect remote client REPL to running Play application here is what you have 
 *Here is the a [short screencast](http://youtu.be/SKNhET81FxI) of using Scala remote repl with running Play application.*
 
 
-## Known limitations?
+## Known limitations
 
 - Right now the remote REPL selects the current thread context classLoader by default. This might now be correct for
   all application.
