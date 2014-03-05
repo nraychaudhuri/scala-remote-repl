@@ -37,10 +37,7 @@ To connect remote client REPL to running Play application here is what you have 
 
 ```sbt -Dconfig.file=myjars.conf "run <pid of the remote process> <hostname> <any open port number>"```
 
-Here is the a short screencast of using Scala remote repl with running Play application.
-
-<iframe width="420" height="315" src="//www.youtube.com/embed/SKNhET81FxI" frameborder="0" allowfullscreen>
-</iframe>
+*Here is the a [short screencast](http://youtu.be/SKNhET81FxI) of using Scala remote repl with running Play application.*
 
 
 ## Known limitations?
